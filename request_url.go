@@ -36,7 +36,7 @@ func unescapeURL(_url url.Values) string {
 func createRequestURL(method, host, path, key, secret, timestamp string, secure bool, body []byte, parameters map[string]string, cluster string) (string, error) {
 	params := unsignedParams(key, timestamp, body, parameters)
 
-	stringToSign := strings.Join([]string{method, path, unescapeURL(params)}, "\n")
+	stringToSign := strings.Join([]string{method, "/websocket" + path, unescapeURL(params)}, "\n")
 
 	authSignature := hmacSignature(stringToSign, secret)
 
@@ -57,7 +57,7 @@ func createRequestURL(method, host, path, key, secret, timestamp string, secure 
 	}
 	base += host
 
-	endpoint, err := url.ParseRequestURI(base + path)
+	endpoint, err := url.ParseRequestURI(base + "/websocket" + path)
 	if err != nil {
 		return "", err
 	}
