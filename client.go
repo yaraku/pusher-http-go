@@ -51,6 +51,7 @@ type Client struct {
 	AppID                        string
 	Key                          string
 	Secret                       string
+	PathPrefix                   string
 	Host                         string // host or host:port pair
 	Secure                       bool   // true for HTTPS
 	Cluster                      string
@@ -130,7 +131,7 @@ func (c *Client) request(method, url string, body []byte) ([]byte, error) {
 /*
 Trigger triggers an event to the Pusher API.
 It is possible to trigger an event on one or more channels. Channel names can
-contain only characters which are alphanumeric, `_` or `-`` and have
+contain only characters which are alphanumeric, `_` or `-“ and have
 to be at most 200 characters long. Event name can be at most 200 characters long too.
 
 Pass in the channel's name, the event's name, and a data payload. The data payload must
@@ -301,7 +302,7 @@ func (c *Client) trigger(channels []string, eventName string, data interface{}, 
 	if err != nil {
 		return nil, err
 	}
-	path := fmt.Sprintf("/apps/%s/events", c.AppID)
+	path := fmt.Sprintf("%s/apps/%s/events", c.PathPrefix, c.AppID)
 	triggerURL, err := createRequestURL("POST", c.Host, path, c.Key, c.Secret, authTimestamp(), c.Secure, payload, nil, c.Cluster)
 	if err != nil {
 		return nil, err
@@ -359,7 +360,7 @@ func (c *Client) TriggerBatch(batch []Event) (*TriggerBatchChannelsList, error) 
 	if err != nil {
 		return nil, err
 	}
-	path := fmt.Sprintf("/apps/%s/batch_events", c.AppID)
+	path := fmt.Sprintf("%s/apps/%s/batch_events", c.PathPrefix, c.AppID)
 	triggerURL, err := createRequestURL("POST", c.Host, path, c.Key, c.Secret, authTimestamp(), c.Secure, payload, nil, c.Cluster)
 	if err != nil {
 		return nil, err
@@ -406,7 +407,7 @@ Channels returns a list of all the channels in an application.
 	//channels=> &{Channels:map[presence-chatroom:{UserCount:4} presence-notifications:{UserCount:31}  ]}
 */
 func (c *Client) Channels(params ChannelsParams) (*ChannelsList, error) {
-	path := fmt.Sprintf("/apps/%s/channels", c.AppID)
+	path := fmt.Sprintf("%s/apps/%s/channels", c.PathPrefix, c.AppID)
 	u, err := createRequestURL("GET", c.Host, path, c.Key, c.Secret, authTimestamp(), c.Secure, nil, params.toMap(), c.Cluster)
 	if err != nil {
 		return nil, err
@@ -448,7 +449,7 @@ Channel allows you to get the state of a single channel.
 	//channel=> &{Name:presence-chatroom Occupied:true UserCount:42 SubscriptionCount:42}
 */
 func (c *Client) Channel(name string, params ChannelParams) (*Channel, error) {
-	path := fmt.Sprintf("/apps/%s/channels/%s", c.AppID, name)
+	path := fmt.Sprintf("%s/apps/%s/channels/%s", c.PathPrefix, c.AppID, name)
 	u, err := createRequestURL("GET", c.Host, path, c.Key, c.Secret, authTimestamp(), c.Secure, nil, params.toMap(), c.Cluster)
 	if err != nil {
 		return nil, err
@@ -469,7 +470,7 @@ method the channel name.
 	//users=> &{List:[{ID:13} {ID:90}]}
 */
 func (c *Client) GetChannelUsers(name string) (*Users, error) {
-	path := fmt.Sprintf("/apps/%s/channels/%s/users", c.AppID, name)
+	path := fmt.Sprintf("%s/apps/%s/channels/%s/users", c.PathPrefix, c.AppID, name)
 	u, err := createRequestURL("GET", c.Host, path, c.Key, c.Secret, authTimestamp(), c.Secure, nil, nil, c.Cluster)
 	if err != nil {
 		return nil, err
